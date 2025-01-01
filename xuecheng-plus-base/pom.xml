@@ -2,16 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>com.xuecheng</groupId>
         <artifactId>xuecheng-plus-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-<!--        找到父工程-->
+        <!--基于当前pom.xml找到父工程-->
         <relativePath>../xuecheng-plus-parent</relativePath>
     </parent>
-    <groupId>com.xuecheng</groupId>
     <artifactId>xuecheng-plus-base</artifactId>
-
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
