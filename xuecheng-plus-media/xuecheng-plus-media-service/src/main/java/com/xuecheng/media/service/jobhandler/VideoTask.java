@@ -67,7 +67,6 @@ public class VideoTask {
             executorService.execute(() -> {
                 try {
 
-
                     // 任务id
                     Long taskId = mediaProcess.getId();
                     // 文件id
