@@ -1,0 +1,35 @@
+#spring:
+#  application:
+#    name: system-service
+#  cloud:
+#    nacos:
+#      server-addr: 192.168.101.65:8848
+#      config:
+#        namespace: dev210
+#        group: xuecheng-plus-project
+#        file-extension: yaml
+#        refresh-enabled: true
+#        shared-configs:
+#          - data-id: logging-${spring.profiles.active}.yaml
+#            group: xuecheng-plus-common
+#            refresh: true
+#  profiles:
+#    active: dev
+
+spring:
+  application:
+    name: system-service
+  cloud:
+    nacos:
+      server-addr: 192.168.101.65:8848
+      config:
+        namespace: dev210
+        group: xuecheng-plus-project
+        file-extension: yaml
+        refresh-enabled: true
+        shared-configs:
+          - data-id: logging-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+  profiles:
+    active: dev

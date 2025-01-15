@@ -5,16 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
-import com.xuecheng.content.mapper.CourseBaseMapper;
-import com.xuecheng.content.mapper.CourseCategoryMapper;
-import com.xuecheng.content.mapper.CourseMarketMapper;
+import com.xuecheng.content.mapper.*;
 import com.xuecheng.content.model.dto.AddCourseDto;
 import com.xuecheng.content.model.dto.CourseBaseInfoDto;
 import com.xuecheng.content.model.dto.EditCourseDto;
 import com.xuecheng.content.model.dto.QueryCourseParamsDto;
-import com.xuecheng.content.model.po.CourseBase;
-import com.xuecheng.content.model.po.CourseCategory;
-import com.xuecheng.content.model.po.CourseMarket;
+import com.xuecheng.content.model.po.*;
 import com.xuecheng.content.service.CourseBaseInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +34,12 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
 
     @Autowired
     CourseCategoryMapper courseCategoryMapper;
+
+    @Autowired
+    CourseTeacherMapper courseTeacherMapper;
+
+    @Autowired
+    TeachplanMapper teachplanMapper;
 
     @Override
     public PageResult<CourseBase> queryCourseBaseList(PageParams pageParams, QueryCourseParamsDto queryCourseParamsDto) {
@@ -65,35 +67,6 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
     @Transactional
     @Override
     public CourseBaseInfoDto createCourseBase(Long companyId, AddCourseDto dto) {
-
-        //合法性校验
-//        if (StringUtils.isBlank(dto.getName())) {
-//            throw new XueChengPlusException("课程名称为空");
-//        }
-//
-//        if (StringUtils.isBlank(dto.getMt())) {
-//            throw new XueChengPlusException("课程分类为空");
-//        }
-//
-//        if (StringUtils.isBlank(dto.getSt())) {
-//            throw new XueChengPlusException("课程分类为空");
-//        }
-//
-//        if (StringUtils.isBlank(dto.getGrade())) {
-//            throw new XueChengPlusException("课程等级为空");
-//        }
-//
-//        if (StringUtils.isBlank(dto.getTeachmode())) {
-//            throw new XueChengPlusException("教育模式为空");
-//        }
-//
-//        if (StringUtils.isBlank(dto.getUsers())) {
-//            throw new XueChengPlusException("适应人群");
-//        }
-//
-//        if (StringUtils.isBlank(dto.getCharge())) {
-//            throw new XueChengPlusException("收费规则为空");
-//        }
 
         // 课程基本信息表插入数据
         CourseBase courseBase = new CourseBase();
@@ -207,5 +180,29 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
         BeanUtils.copyProperties(editCourseDto, courseMarket);
         saveCourseMarket(courseMarket);
         return getCourseBaseInfo(courseId);
+    }
+
+    @Override
+    @Transactional
+    public void deletebyCourseId(Long companyId, Long courseId) {
+        CourseBase courseBase = courseBaseMapper.selectById(courseId);
+        if (!courseBase.getCompanyId().equals(companyId)) {
+            XueChengPlusException.cast("只能删除本机构的课程哦！");
+        }
+        if (!courseBase.getAuditStatus().equals("202002")) {
+            XueChengPlusException.cast("该课程已提交，请耐心等待哦！");
+        }
+        // 删除课程计划信息
+        LambdaQueryWrapper<Teachplan> planQueryWrapper = new LambdaQueryWrapper<>();
+        planQueryWrapper.eq(Teachplan::getCourseId, courseId);
+        teachplanMapper.delete(planQueryWrapper);
+        // 删除教师信息
+        LambdaQueryWrapper<CourseTeacher> teacherQueryWrapper = new LambdaQueryWrapper<>();
+        teacherQueryWrapper.eq(CourseTeacher::getCourseId, courseId);
+        courseTeacherMapper.delete(teacherQueryWrapper);
+        // 删除课程基本信息
+        courseBaseMapper.deleteById(courseId);
+        // 删除课程营销信息
+        courseMarketMapper.deleteById(courseId);
     }
 }
