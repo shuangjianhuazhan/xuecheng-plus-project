@@ -5,6 +5,9 @@ spring:
   cloud:
     nacos:
       server-addr: 192.168.101.65:8848
+      discovery: #服务注册的相关配置
+        namespace: dev210
+        group: xuecheng-plus-project
       config: #配置文件相关信息
         namespace: dev210
         group: xuecheng-plus-project
@@ -12,6 +15,9 @@ spring:
         refresh-enabled: true
         shared-configs:
           - data-id: logging-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+          - data-id: feign-${spring.profiles.active}.yaml
             group: xuecheng-plus-common
             refresh: true
   profiles:
