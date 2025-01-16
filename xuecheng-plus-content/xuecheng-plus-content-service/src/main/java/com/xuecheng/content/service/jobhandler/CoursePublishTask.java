@@ -1,6 +1,10 @@
 package com.xuecheng.content.service.jobhandler;
 
 import com.xuecheng.base.exception.XueChengPlusException;
+import com.xuecheng.content.feignclient.SearchServiceClient;
+import com.xuecheng.content.mapper.CoursePublishMapper;
+import com.xuecheng.content.model.dto.CourseIndex;
+import com.xuecheng.content.model.po.CoursePublish;
 import com.xuecheng.content.service.CoursePublishService;
 import com.xuecheng.messagesdk.model.po.MqMessage;
 import com.xuecheng.messagesdk.service.MessageProcessAbstract;
@@ -8,6 +12,7 @@ import com.xuecheng.messagesdk.service.MqMessageService;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +27,12 @@ public class CoursePublishTask extends MessageProcessAbstract {
 
     @Autowired
     private CoursePublishService coursePublishService;
+
+    @Autowired
+    private SearchServiceClient searchServiceClient;
+
+    @Autowired
+    private CoursePublishMapper coursePublishMapper;
 
     @XxlJob("CoursePublishJobHandler")
     public void coursePublishJobHandler() throws Exception {
@@ -45,8 +56,10 @@ public class CoursePublishTask extends MessageProcessAbstract {
         generateCourseHtml(mqMessage, courseId);
 
         // 向elasticsearch写索引数据
+        saveCourseIndex(mqMessage, courseId);
 
         // 向redis写缓存
+        saveCourseCache(mqMessage, courseId);
 
         // 返回true表示完成
         return true;
@@ -75,12 +88,12 @@ public class CoursePublishTask extends MessageProcessAbstract {
         // 将html上传到Minio
         coursePublishService.uploadCourseHtml(courseId, file);
 
-        // 任务处理完成写任务状态未完成
+        // 第一阶段任务处理完成
         mqMessageService.completedStageOne(taskId);
     }
 
     //保存课程索引信息
-    private void saveCourseIndex(MqMessage mqMessage, long courseId) {
+    private void saveCourseIndex(MqMessage mqMessage, Long courseId) {
 
         // 任务id
         Long taskId = mqMessage.getId();
@@ -93,7 +106,20 @@ public class CoursePublishTask extends MessageProcessAbstract {
             log.debug("课程索引任务已完成，已完成进度：2/3");
             return;
         }
-        // 写入搜索服务
+
+        //取出课程发布信息
+        CoursePublish coursePublish = coursePublishMapper.selectById(courseId);
+
+        // 远程调用
+        CourseIndex courseIndex = new CourseIndex();
+        BeanUtils.copyProperties(coursePublish, courseIndex);
+        Boolean add = searchServiceClient.add(courseIndex);
+        if (!add) {
+            XueChengPlusException.cast("添加课程索引失败");
+        }
+
+        // 第二阶段任务处理完成
+        mqMessageService.completedStageTwo(taskId);
     }
 
     // 向redis写入信息
@@ -111,5 +137,9 @@ public class CoursePublishTask extends MessageProcessAbstract {
             return;
         }
         // 写入redis
+        // TODO
+
+        // 第二阶段任务处理完成
+        mqMessageService.completedStageThree(taskId);
     }
 }
