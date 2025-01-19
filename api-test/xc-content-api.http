@@ -33,7 +33,7 @@ Content-Type: application/json
 
 ### 根据课程id查询课程信息
 GET {{content_host}}/content/course/40
-Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsieHVlY2hlbmctcGx1cyJdLCJ1c2VyX25hbWUiOiJ6aGFuZ3NhbiIsInNjb3BlIjpbImFsbCJdLCJleHAiOjE3MzcwMjUzODcsImF1dGhvcml0aWVzIjpbInAxIl0sImp0aSI6ImNkZjZlYzA5LWMzOWYtNGI4Ny04Y2Q4LWQ5YjEwZWI0NDU3MyIsImNsaWVudF9pZCI6IlhjV2ViQXBwIn0.glgag_Nc54FyaBT8EmmKu9Qt7Z49xbNDI67jOkm2ptI
 
 
 ### 修改课程
@@ -66,3 +66,7 @@ Content-Type: application/json
   "auditStatus": "202002",
   "courseName": ""
 }
+
+### 根据网关课程id查询课程信息
+GET {{gateway_host}}/content/course/40
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsieHVlY2hlbmctcGx1cyJdLCJ1c2VyX25hbWUiOiJ7XCJjb21wYW55SWRcIjpcIjEyMzIxNDE0MjVcIixcImNyZWF0ZVRpbWVcIjpcIjIwMjItMDktMjhUMDg6MzI6MDNcIixcImlkXCI6XCI1MlwiLFwibmFtZVwiOlwiTeiAgeW4iFwiLFwic2V4XCI6XCIxXCIsXCJzdGF0dXNcIjpcIlwiLFwidXNlcm5hbWVcIjpcInQxXCIsXCJ1dHlwZVwiOlwiMTAxMDAyXCJ9Iiwic2NvcGUiOlsiYWxsIl0sImV4cCI6MTczNzA0MTU1NywiYXV0aG9yaXRpZXMiOlsidGVzdCJdLCJqdGkiOiI0NmJhZTJjNi0xZTNjLTQ1MGUtYTVlYy0zMDU5NWJmOWExYmYiLCJjbGllbnRfaWQiOiJYY1dlYkFwcCJ9.12ieAa1qCdKuh6PkDOI4hDOjEjyWtPmZ_BWILgwqXho
